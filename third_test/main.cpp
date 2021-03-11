@@ -2,7 +2,8 @@
 #include <time.h>
 #include <iostream>
 //#include <io.h>
-//#include <direct.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -174,44 +175,57 @@ static bool splitPic(string rootPath, Mat imgOri)
     return true;
 }
 
-static void getFiles(string path, vector<string>& files)
+static void getFiles(string path, vector<string>& filenames)
 {
-    __int64   hFile = 0;
-    struct __finddata64_t fileinfo;
-    string p;
-    if ((hFile = _findfirst64(p.assign(path).append("/*").c_str(), &fileinfo)) != -1)
-    {
-        do
-        {
-            if ((fileinfo.attrib &  _A_SUBDIR))
-            {
-                if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-                    getFiles(p.assign(path).append("/").append(fileinfo.name), files);
-            }
-            else
-            {
-                files.push_back(p.assign(path).append("/").append(fileinfo.name));
-            }
-        } while (_findnext64(hFile, &fileinfo) == 0);
-
-        _findclose(hFile);
+    DIR* pDir;
+    struct dirent* ptr;
+    if(!(pDir = opendir(path.c_str())))
+        return;
+    while((ptr = readdir(pDir))!=0) {
+        if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
+            filenames.push_back(path + "/" + ptr->d_name);
     }
+    closedir(pDir);
 }
+
+//static void getFiles(string path, vector<string>& files)
+//{
+//    __int64 hFile = 0;
+//    struct __finddata64_t fileinfo;
+//    string p;
+//    if ((hFile = _findfirst64(p.assign(path).append("/*").c_str(), &fileinfo)) != -1)
+//    {
+//        do
+//        {
+//            if ((fileinfo.attrib & _A_SUBDIR))
+//            {
+//                if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+//                    getFiles(p.assign(path).append("/").append(fileinfo.name), files);
+//            }
+//            else
+//            {
+//                files.push_back(p.assign(path).append("/").append(fileinfo.name));
+//            }
+//        } while (_findnext64(hFile, &fileinfo) == 0);
+//
+//        _findclose(hFile);
+//    }
+//}
 
 static bool svmSetTrainLabel(Mat& trainingImages, vector<int>& trainingLabels, string trainDataPath, int trainLabel)
 {
-    if (_access(trainDataPath.c_str(), 0) == -1)
-    {
-        cout << "Cannot find this folder!" << endl;
-        return false;
-    }
+//    if (_access(trainDataPath.c_str(), 0) == -1)
+//    {
+//        cout << "Cannot find this folder!" << endl;
+//        return false;
+//    }
 
     vector<string> files;
     getFiles(trainDataPath, files);
     int number = files.size();
     for (int i = 0; i < number; i++)
     {
-        Mat  SrcImage = imread(files[i].c_str());
+        Mat SrcImage = imread(files[i].c_str());
         SrcImage = SrcImage.reshape(1, 1);
         trainingImages.push_back(SrcImage);
         trainingLabels.push_back(trainLabel);
