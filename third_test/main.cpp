@@ -26,7 +26,6 @@ using namespace cv::ml;
 #define NEED_TRAIN			1
 #define NEED_PREDICT		1
 
-static int	createDirectory(string path);
 static bool splitPic(string rootPath, Mat imgOri);
 static void getFiles(string path, vector<string>& files);
 static bool svmTrain(string dataPath, string saveFile);
@@ -85,25 +84,6 @@ int main()
     return ret;
 }
 
-//static int createDirectory(string path)
-//{
-//    int len = path.length();
-//    char tmpDirPath[256] = { 0 };
-//    for (int i = 0; i < len; i++)
-//    {
-//        tmpDirPath[i] = path[i];
-//        if (tmpDirPath[i] == '\\' || tmpDirPath[i] == '/')
-//        {
-//            if (_access(tmpDirPath, 0) == -1)
-//            {
-//                int ret = _mkdir(tmpDirPath);
-//                if (ret == -1) return ret;
-//            }
-//        }
-//    }
-//    return true;
-//}
-
 static bool splitPic(string rootPath, Mat imgOri)
 {
     string trainFilePath, testFilePath;
@@ -131,18 +111,7 @@ static bool splitPic(string rootPath, Mat imgOri)
             int offsetCol = j * b; //offset of Column
             trainFilePath = rootPath + TRAIN_PATH + to_string(filename) + "/";
             testFilePath  = rootPath + TEST_PATH + to_string(filename) + "/";
-//            ret = createDirectory(trainFilePath);
-//            if (true != ret)
-//            {
-//                cout << "Cannot creat trainFilePath!" << endl;
-//                return ret;
-//            }
-//            ret = createDirectory(testFilePath);
-//            if (true != ret)
-//            {
-//                cout << "Cannot creat testFilePath!" << endl;
-//                return ret;
-//            }
+
             if (filenum < 400)
             {
                 trainFileName = trainFilePath + to_string(filenum++) + ".jpg";
@@ -188,38 +157,8 @@ static void getFiles(string path, vector<string>& filenames)
     closedir(pDir);
 }
 
-//static void getFiles(string path, vector<string>& files)
-//{
-//    __int64 hFile = 0;
-//    struct __finddata64_t fileinfo;
-//    string p;
-//    if ((hFile = _findfirst64(p.assign(path).append("/*").c_str(), &fileinfo)) != -1)
-//    {
-//        do
-//        {
-//            if ((fileinfo.attrib & _A_SUBDIR))
-//            {
-//                if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-//                    getFiles(p.assign(path).append("/").append(fileinfo.name), files);
-//            }
-//            else
-//            {
-//                files.push_back(p.assign(path).append("/").append(fileinfo.name));
-//            }
-//        } while (_findnext64(hFile, &fileinfo) == 0);
-//
-//        _findclose(hFile);
-//    }
-//}
-
 static bool svmSetTrainLabel(Mat& trainingImages, vector<int>& trainingLabels, string trainDataPath, int trainLabel)
 {
-//    if (_access(trainDataPath.c_str(), 0) == -1)
-//    {
-//        cout << "Cannot find this folder!" << endl;
-//        return false;
-//    }
-
     vector<string> files;
     getFiles(trainDataPath, files);
     int number = files.size();
@@ -283,12 +222,6 @@ static bool svmPredict(string dataPath, string loadFile, int expectVaule)
     int result = 0;
     string filePath = dataPath + to_string(expectVaule);
 
-//    if (_access(filePath.c_str(), 0) == -1)
-//    {
-//        cout << "Cannot find this folder!" << endl;
-//        return false;
-//    }
-
     vector<string> files;
     getFiles(filePath, files);
     int number = files.size();
@@ -319,11 +252,10 @@ static bool svmPredict(string dataPath, string loadFile, int expectVaule)
         else
         {
             cout << "The " << i << "-th image predict fail, expect: [" << expectVaule << "], predict: [" << response << "]" << endl;
-            return false;
         }
 
     }
-    cout << "All files predict Success!!!" << result << endl;
+    cout << result<< " files predict Success!!!" << endl;
 
     return  true;
 }
