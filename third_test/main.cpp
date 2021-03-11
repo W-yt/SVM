@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
-//#include <io.h>
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -16,12 +15,12 @@ using namespace std;
 using namespace cv;
 using namespace cv::ml;
 
-#define ORIGINAL_PIC_NAME	"./digits.png"
+#define ORIGINAL_PIC_NAME	"../digits.png"
 #define	SPLIT_BLOCK_SIZE	20
 #define ROOT_PATH			"../data/"
 #define TRAIN_PATH			"train/"
 #define TEST_PATH			"test/"
-#define SVM_XML				"svm.xml"
+#define SVM_XML				"../svm.xml"
 
 #define NEED_SPLIT			1
 #define NEED_TRAIN			1
@@ -39,6 +38,7 @@ int main()
     string rootPath = ROOT_PATH;
 
     Mat imgOri = imread(ORIGINAL_PIC_NAME);
+
     if (imgOri.empty())
     {
         cout << "Cannot load this picture!" << endl;
@@ -71,7 +71,7 @@ int main()
     if (NEED_PREDICT)
     {
         cout << "Begain predict pictures..." << endl;
-        ret = svmPredict("./data/test/", SVM_XML, 0);
+        ret = svmPredict("../data/test/", SVM_XML, 0);
         if (true != ret)
         {
             cout << "SVM Predict Fail!" << endl;
@@ -81,10 +81,9 @@ int main()
 
     out:
     getchar();
+
     return ret;
 }
-
-
 
 //static int createDirectory(string path)
 //{
@@ -181,7 +180,8 @@ static void getFiles(string path, vector<string>& filenames)
     struct dirent* ptr;
     if(!(pDir = opendir(path.c_str())))
         return;
-    while((ptr = readdir(pDir))!=0) {
+    while((ptr = readdir(pDir))!=0)
+    {
         if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
             filenames.push_back(path + "/" + ptr->d_name);
     }
@@ -226,6 +226,7 @@ static bool svmSetTrainLabel(Mat& trainingImages, vector<int>& trainingLabels, s
     for (int i = 0; i < number; i++)
     {
         Mat SrcImage = imread(files[i].c_str());
+        /* 将其变成单通道的1行的矩阵 也就是把所有的像素点都排列到一行上 */
         SrcImage = SrcImage.reshape(1, 1);
         trainingImages.push_back(SrcImage);
         trainingLabels.push_back(trainLabel);
@@ -277,17 +278,16 @@ static bool svmTrain(string dataPath, string saveFile)
     return true;
 }
 
-
 static bool svmPredict(string dataPath, string loadFile, int expectVaule)
 {
     int result = 0;
     string filePath = dataPath + to_string(expectVaule);
 
-    if (_access(filePath.c_str(), 0) == -1)
-    {
-        cout << "Cannot find this folder!" << endl;
-        return false;
-    }
+//    if (_access(filePath.c_str(), 0) == -1)
+//    {
+//        cout << "Cannot find this folder!" << endl;
+//        return false;
+//    }
 
     vector<string> files;
     getFiles(filePath, files);
@@ -295,6 +295,7 @@ static bool svmPredict(string dataPath, string loadFile, int expectVaule)
     Ptr<ml::SVM> svm;
 
     FileStorage svm_fs(loadFile, FileStorage::READ);
+
     if (svm_fs.isOpened())
     {
         svm = StatModel::load<SVM>(loadFile);
@@ -304,6 +305,7 @@ static bool svmPredict(string dataPath, string loadFile, int expectVaule)
         cout << "Cannot find this file!" << endl;
         return false;
     }
+
     for (int i = 0; i < number; i++)
     {
         Mat inMat = imread(files[i].c_str());
