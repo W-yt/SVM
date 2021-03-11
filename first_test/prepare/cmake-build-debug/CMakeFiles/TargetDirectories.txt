@@ -1,3 +1,0 @@
-/home/yutian/CLionProjects/SVM/first_test/prepare/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/yutian/CLionProjects/SVM/first_test/prepare/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/yutian/CLionProjects/SVM/first_test/prepare/cmake-build-debug/CMakeFiles/SVM_prepare.dir
